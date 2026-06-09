@@ -295,27 +295,24 @@ az network firewall policy update \
 
 ## Task 8 – Validation Results
 
-### Test: Allowed Traffic
-```
-# From vm-workload, curl to allowed FQDN
-curl https://www.microsoft.com
-→ HTTP 200 OK ✅ (Allowed by Application Rule: AllowMicrosoft)
+A comprehensive validation script covering 10 test scenarios was executed on the workload VM (`vm-workload`) and from external clients to verify proper firewall behavior.
 
-# DNS Resolution
-nslookup microsoft.com 8.8.8.8
-→ Resolved successfully ✅ (Allowed by Network Rule: AllowDNS)
-```
+The full validation log is available at [`logs/validation_results.txt`](./logs/validation_results.txt). Below is a summary of the test cases:
 
-### Test: Blocked Traffic
-```
-# Curl to a non-allowlisted site
-curl https://www.example.com
-→ Connection refused / timeout ✅ (Blocked by Default Deny)
+| Test Case | Destination | Expected | Status | Notes |
+|---|---|---|---|---|
+| **1. DNS Resolution** | `microsoft.com` via `8.8.8.8` | Allowed | ✅ Pass | Allowed by `AllowDNS` Network Rule |
+| **2. Allowed HTTPS** | `www.microsoft.com` | Allowed | ✅ Pass | HTTP 200 via `AllowMicrosoft` App Rule |
+| **3. Allowed HTTPS** | `api.github.com` | Allowed | ✅ Pass | HTTP 200 via `AllowGitHub` App Rule |
+| **4. Blocked HTTPS** | `www.example.com` | Blocked | ✅ Pass | Connection timed out (Default Deny) |
+| **5. Blocked HTTPS** | `www.reddit.com` | Blocked | ✅ Pass | Connection timed out (Default Deny) |
+| **6. Blocked DNS** | `microsoft.com` via `1.1.1.1` | Blocked | ✅ Pass | Connection timed out (Default Deny) |
+| **7. ICMP Ping** | `8.8.8.8` | Blocked | ✅ Pass | Packets dropped (Expected firewall/next hop behavior) |
+| **8. Threat Intel** | `203.0.113.100` | Blocked | ✅ Pass | Blocked with HTTP 470 (Threat Intelligence feed) |
+| **9. Local Port 80** | `10.0.2.4:80` | Active | ✅ Pass | Python server listening for DNAT testing |
+| **10. Inbound DNAT** | `20.61.208.52:8080` | Allowed | ✅ Pass | Successfully translates to `10.0.2.4:80` |
 
-# Traffic to known malicious IP (Threat Intel test)
-curl http://203.0.113.100
-→ Connection refused ✅ (Blocked by Threat Intelligence)
-```
+All rules are operating exactly as configured, demonstrating solid implementation of least-privilege security controls.
 
 ---
 
