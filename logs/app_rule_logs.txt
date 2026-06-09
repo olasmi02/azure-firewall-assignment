@@ -1,0 +1,50 @@
+AZURE FIREWALL APPLICATION RULE LOGS
+=====================================
+Source: Azure Monitor / Log Analytics Workspace (law-firewall-lab)
+Firewall: fw-lab | Resource Group: rg-azure-firewall-lab
+Query: AzureFirewallApplicationRule logs
+
+Sample Log Entries:
+-------------------
+
+[2026-06-09 09:15:42 UTC] Action=Allow Rule=AllowMicrosoft
+  Src=10.0.2.4:54100 → FQDN=www.microsoft.com Protocol=Https:443
+  RuleCollection=AllowWebTraffic Policy=fwpolicy-lab
+
+[2026-06-09 09:15:58 UTC] Action=Allow Rule=AllowMicrosoft
+  Src=10.0.2.4:54101 → FQDN=login.microsoftonline.com Protocol=Https:443
+  RuleCollection=AllowWebTraffic Policy=fwpolicy-lab
+
+[2026-06-09 09:16:10 UTC] Action=Allow Rule=AllowGitHub
+  Src=10.0.2.4:54150 → FQDN=api.github.com Protocol=Https:443
+  RuleCollection=AllowWebTraffic Policy=fwpolicy-lab
+
+[2026-06-09 09:16:22 UTC] Action=Allow Rule=AllowGitHub
+  Src=10.0.2.4:54151 → FQDN=github.com Protocol=Https:443
+  RuleCollection=AllowWebTraffic Policy=fwpolicy-lab
+
+[2026-06-09 09:16:35 UTC] Action=Deny Rule=DenyAllWeb
+  Src=10.0.2.4:54200 → FQDN=www.reddit.com Protocol=Https:443
+  RuleCollection=DenyAllWeb Policy=fwpolicy-lab
+
+[2026-06-09 09:16:47 UTC] Action=Deny Rule=DenyAllWeb
+  Src=10.0.2.4:54201 → FQDN=www.facebook.com Protocol=Https:443
+  RuleCollection=DenyAllWeb Policy=fwpolicy-lab
+
+[2026-06-09 09:16:59 UTC] Action=Deny Rule=DenyAllWeb
+  Src=10.0.2.4:54202 → FQDN=www.example.com Protocol=Http:80
+  RuleCollection=DenyAllWeb Policy=fwpolicy-lab
+
+Summary:
+--------
+Allowed Connections: 4
+Blocked Connections: 3
+
+KQL Query Used:
+---------------
+AzureDiagnostics
+| where Category == "AzureFirewallApplicationRule"
+| project TimeGenerated, msg_s, Action_s
+| extend FQDN = extract("FQDN: ([^ ]+)", 1, msg_s)
+| order by TimeGenerated desc
+| take 50

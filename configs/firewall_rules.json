@@ -1,0 +1,133 @@
+{
+  "firewallPolicy": {
+    "name": "fwpolicy-lab",
+    "resourceGroup": "rg-azure-firewall-lab",
+    "location": "westeurope",
+    "threatIntelMode": "Deny",
+    "sku": {
+      "tier": "Standard"
+    },
+    "ruleCollectionGroups": [
+      {
+        "name": "NATRuleCollectionGroup",
+        "priority": 50,
+        "ruleCollections": [
+          {
+            "name": "InboundNAT",
+            "ruleCollectionType": "FirewallPolicyNatRuleCollection",
+            "priority": 100,
+            "action": {
+              "type": "DNAT"
+            },
+            "rules": [
+              {
+                "name": "DNAT-Web",
+                "ruleType": "NatRule",
+                "ipProtocols": ["TCP"],
+                "sourceAddresses": ["*"],
+                "destinationAddresses": ["20.61.208.52"],
+                "destinationPorts": ["8080"],
+                "translatedAddress": "10.0.2.4",
+                "translatedPort": "80"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "NetworkRuleCollectionGroup",
+        "priority": 100,
+        "ruleCollections": [
+          {
+            "name": "AllowNetworkRules",
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "priority": 100,
+            "action": {
+              "type": "Allow"
+            },
+            "rules": [
+              {
+                "name": "AllowDNS",
+                "ruleType": "NetworkRule",
+                "ipProtocols": ["UDP"],
+                "sourceAddresses": ["10.0.2.0/24"],
+                "destinationAddresses": ["8.8.8.8", "8.8.4.4"],
+                "destinationPorts": ["53"]
+              },
+              {
+                "name": "AllowICMP",
+                "ruleType": "NetworkRule",
+                "ipProtocols": ["ICMP"],
+                "sourceAddresses": ["10.0.2.0/24"],
+                "destinationAddresses": ["*"],
+                "destinationPorts": ["*"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "AppRuleCollectionGroup",
+        "priority": 200,
+        "ruleCollections": [
+          {
+            "name": "AllowWebTraffic",
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "priority": 100,
+            "action": {
+              "type": "Allow"
+            },
+            "rules": [
+              {
+                "name": "AllowMicrosoft",
+                "ruleType": "ApplicationRule",
+                "sourceAddresses": ["10.0.2.0/24"],
+                "protocols": [
+                  { "protocolType": "Https", "port": 443 }
+                ],
+                "targetFqdns": [
+                  "*.microsoft.com",
+                  "*.microsoftonline.com",
+                  "*.azure.com",
+                  "*.windows.net"
+                ]
+              },
+              {
+                "name": "AllowGitHub",
+                "ruleType": "ApplicationRule",
+                "sourceAddresses": ["10.0.2.0/24"],
+                "protocols": [
+                  { "protocolType": "Https", "port": 443 }
+                ],
+                "targetFqdns": [
+                  "*.github.com",
+                  "github.com"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "DenyAllWeb",
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "priority": 200,
+            "action": {
+              "type": "Deny"
+            },
+            "rules": [
+              {
+                "name": "DenyAllHTTP",
+                "ruleType": "ApplicationRule",
+                "sourceAddresses": ["*"],
+                "protocols": [
+                  { "protocolType": "Http", "port": 80 },
+                  { "protocolType": "Https", "port": 443 }
+                ],
+                "targetFqdns": ["*"]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

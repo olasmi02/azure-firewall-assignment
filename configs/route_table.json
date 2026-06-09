@@ -1,0 +1,31 @@
+{
+  "routeTable": {
+    "name": "rt-firewall-lab",
+    "resourceGroup": "rg-azure-firewall-lab",
+    "location": "westeurope",
+    "properties": {
+      "disableBgpRoutePropagation": true,
+      "associatedSubnets": [
+        {
+          "vnet": "vnet-firewall-lab",
+          "subnet": "WorkloadSubnet",
+          "addressPrefix": "10.0.2.0/24"
+        }
+      ],
+      "routes": [
+        {
+          "name": "route-to-firewall",
+          "addressPrefix": "0.0.0.0/0",
+          "nextHopType": "VirtualAppliance",
+          "nextHopIpAddress": "10.0.1.4",
+          "description": "Force all outbound traffic through Azure Firewall private IP"
+        }
+      ]
+    }
+  },
+  "notes": {
+    "nextHopType": "VirtualAppliance is used for Azure Firewall (not VirtualNetworkGateway)",
+    "bgpPropagation": "Disabled to prevent BGP routes from overriding the custom UDR",
+    "effect": "All traffic leaving WorkloadSubnet (10.0.2.0/24) is inspected by fw-lab at 10.0.1.4"
+  }
+}

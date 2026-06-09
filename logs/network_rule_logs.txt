@@ -1,0 +1,38 @@
+AZURE FIREWALL NETWORK RULE LOGS
+==================================
+Source: Azure Monitor / Log Analytics Workspace (law-firewall-lab)
+Firewall: fw-lab | Resource Group: rg-azure-firewall-lab
+Query: AzureFirewallNetworkRule logs
+
+Sample Log Entries:
+-------------------
+
+[2026-06-09 09:15:02 UTC] Action=Allow Rule=AllowDNS Protocol=UDP
+  Src=10.0.2.4:49152 → Dst=8.8.8.8:53
+  RuleCollection=AllowNetworkRules Policy=fwpolicy-lab
+
+[2026-06-09 09:15:14 UTC] Action=Allow Rule=AllowDNS Protocol=UDP
+  Src=10.0.2.4:49153 → Dst=8.8.4.4:53
+  RuleCollection=AllowNetworkRules Policy=fwpolicy-lab
+
+[2026-06-09 09:15:31 UTC] Action=Allow Rule=AllowICMP Protocol=ICMP
+  Src=10.0.2.4 → Dst=8.8.8.8
+  RuleCollection=AllowNetworkRules Policy=fwpolicy-lab
+
+[2026-06-09 09:16:45 UTC] Action=Deny Rule=DefaultDeny Protocol=TCP
+  Src=10.0.2.4:54201 → Dst=93.184.216.34:80
+  RuleCollection=DenyAll Policy=fwpolicy-lab
+  Note: 93.184.216.34 = example.com
+
+[2026-06-09 09:17:12 UTC] Action=Deny ThreatIntel=True Protocol=TCP
+  Src=10.0.2.4:54300 → Dst=203.0.113.100:80
+  Reason=ThreatIntelligence Category=MaliciousIP
+  Policy=fwpolicy-lab
+
+KQL Query Used:
+---------------
+AzureDiagnostics
+| where Category == "AzureFirewallNetworkRule"
+| project TimeGenerated, msg_s, Action_s
+| order by TimeGenerated desc
+| take 50

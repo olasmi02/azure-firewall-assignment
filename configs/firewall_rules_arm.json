@@ -1,0 +1,144 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "publicIpAddress": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+      "apiVersion": "2023-04-01",
+      "name": "fwpolicy-lab/NATRuleCollectionGroup",
+      "location": "westeurope",
+      "properties": {
+        "priority": 100,
+        "ruleCollections": [
+          {
+            "ruleCollectionType": "FirewallPolicyNatRuleCollection",
+            "name": "InboundNAT",
+            "priority": 100,
+            "action": { "type": "DNAT" },
+            "rules": [
+              {
+                "ruleType": "NatRule",
+                "name": "DNAT-Web",
+                "ipProtocols": ["TCP"],
+                "sourceAddresses": ["*"],
+                "destinationAddresses": ["[parameters('publicIpAddress')]"],
+                "destinationPorts": ["8080"],
+                "translatedAddress": "10.0.2.4",
+                "translatedPort": "80"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+      "apiVersion": "2023-04-01",
+      "name": "fwpolicy-lab/NetworkRuleCollectionGroup",
+      "location": "westeurope",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', 'fwpolicy-lab', 'NATRuleCollectionGroup')]"
+      ],
+      "properties": {
+        "priority": 200,
+        "ruleCollections": [
+          {
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "name": "AllowNetworkRules",
+            "priority": 100,
+            "action": { "type": "Allow" },
+            "rules": [
+              {
+                "ruleType": "NetworkRule",
+                "name": "AllowDNS",
+                "ipProtocols": ["UDP"],
+                "sourceAddresses": ["10.0.2.0/24"],
+                "destinationAddresses": ["8.8.8.8", "8.8.4.4"],
+                "destinationPorts": ["53"]
+              },
+              {
+                "ruleType": "NetworkRule",
+                "name": "AllowICMP",
+                "ipProtocols": ["ICMP"],
+                "sourceAddresses": ["10.0.2.0/24"],
+                "destinationAddresses": ["*"],
+                "destinationPorts": ["*"]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+      "apiVersion": "2023-04-01",
+      "name": "fwpolicy-lab/AppRuleCollectionGroup",
+      "location": "westeurope",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', 'fwpolicy-lab', 'NetworkRuleCollectionGroup')]"
+      ],
+      "properties": {
+        "priority": 300,
+        "ruleCollections": [
+          {
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "name": "AllowWebTraffic",
+            "priority": 100,
+            "action": { "type": "Allow" },
+            "rules": [
+              {
+                "ruleType": "ApplicationRule",
+                "name": "AllowMicrosoft",
+                "sourceAddresses": ["10.0.2.0/24"],
+                "protocols": [
+                  { "protocolType": "Https", "port": 443 }
+                ],
+                "targetFqdns": [
+                  "*.microsoft.com",
+                  "*.microsoftonline.com",
+                  "*.azure.com",
+                  "*.windows.net"
+                ]
+              },
+              {
+                "ruleType": "ApplicationRule",
+                "name": "AllowGitHub",
+                "sourceAddresses": ["10.0.2.0/24"],
+                "protocols": [
+                  { "protocolType": "Https", "port": 443 }
+                ],
+                "targetFqdns": [
+                  "*.github.com",
+                  "github.com"
+                ]
+              }
+            ]
+          },
+          {
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "name": "DenyAllWeb",
+            "priority": 200,
+            "action": { "type": "Deny" },
+            "rules": [
+              {
+                "ruleType": "ApplicationRule",
+                "name": "DenyAllHTTP",
+                "sourceAddresses": ["*"],
+                "protocols": [
+                  { "protocolType": "Http", "port": 80 },
+                  { "protocolType": "Https", "port": 443 }
+                ],
+                "targetFqdns": ["*"]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
