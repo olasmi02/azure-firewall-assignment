@@ -142,6 +142,9 @@ az network vnet subnet update \
 
 > **Key Point:** Setting Next Hop Type to `VirtualAppliance` and specifying the firewall's private IP (10.0.1.4) ensures all internet-bound traffic is inspected by the firewall.
 
+**Portal Configuration Evidence:**
+![Route Table Config](./screenshots/route_table.png)
+
 ---
 
 ## Task 4 – Network Rules
@@ -182,6 +185,9 @@ az network firewall policy rule-collection-group collection add-filter-collectio
 | AllowDNS | UDP | 10.0.2.0/24 | 8.8.8.8, 8.8.4.4 | 53 | Allow |
 | AllowICMP | ICMP | 10.0.2.0/24 | * | * | Allow |
 | DenyAll | Any | * | * | * | Deny |
+
+**Portal Configuration Evidence:**
+![Network Rules Collection](./screenshots/network_rules.png)
 
 ---
 
@@ -225,6 +231,9 @@ az network firewall policy rule-collection-group collection add-filter-collectio
 | AllowAzure | HTTPS:443 | 10.0.2.0/24 | *.azure.com | Allow |
 | DenyAllWeb | HTTP/HTTPS | * | * | Deny |
 
+**Portal Configuration Evidence:**
+![Application Rules Collection](./screenshots/application_rules.png)
+
 ---
 
 ## Task 6 – NAT Rules (DNAT)
@@ -264,6 +273,9 @@ az network firewall policy rule-collection-group collection add-nat-collection \
 | Rule | Inbound | Translated To | Protocol |
 |------|---------|---------------|----------|
 | DNAT-Web | PublicIP:8080 | 10.0.2.4:80 | TCP |
+
+**Portal Configuration Evidence:**
+![NAT Rules Collection](./screenshots/nat_rules.png)
 
 ---
 
@@ -313,6 +325,9 @@ The full validation log is available at [`logs/validation_results.txt`](./logs/v
 | **10. Inbound DNAT** | `20.61.208.52:8080` | Allowed | ✅ Pass | Successfully translates to `10.0.2.4:80` |
 
 All rules are operating exactly as configured, demonstrating solid implementation of least-privilege security controls.
+
+**Verification Evidence (DNAT curl test response):**
+![Traffic Verification](./screenshots/traffic_verification.png)
 
 ---
 

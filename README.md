@@ -57,13 +57,15 @@ azure-firewall-assignment/
 ├── deployment_report.md         ← Step-by-step deployment guide with CLI outputs
 ├── troubleshooting_report.md    ← Issues encountered and how they were resolved
 ├── configs/
-│   ├── firewall_policy.json     ← Exported firewall policy configuration
+│   ├── firewall_policy_export.json   ← Exported firewall policy configuration
 │   ├── firewall_rules.json      ← Network, Application & NAT rule collections
 │   └── route_table.json         ← Route table UDR configuration
-└── logs/
-    ├── network_rule_logs.txt    ← Traffic filtering evidence (allowed traffic)
-    ├── app_rule_logs.txt        ← Application rule filtering logs
-    └── validation_results.txt   ← Connectivity test results
+├── logs/
+│   ├── network_rule_logs.txt    ← Traffic filtering evidence (allowed traffic)
+│   ├── app_rule_logs.txt        ← Application rule filtering logs
+│   └── validation_results.txt   ← Connectivity test results
+└── screenshots/
+    └── README.md                ← Instructions & placeholders for required screenshots
 ```
 
 ---
