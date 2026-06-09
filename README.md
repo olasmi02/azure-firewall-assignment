@@ -1,5 +1,7 @@
 # Azure Virtual Network Security – Azure Firewall Lab
 
+[![GitHub](https://img.shields.io/badge/GitHub-azure--firewall--assignment-blue?logo=github)](https://github.com/olasmi02/azure-firewall-assignment)
+
 ## Overview
 
 This project demonstrates enterprise-grade network security on Microsoft Azure using **Azure Firewall**, a fully managed, stateful Firewall-as-a-Service (FWaaS). The lab transitions from basic Network Security Groups (NSGs) to centralized, policy-driven traffic control with full monitoring and threat intelligence integration.
@@ -123,6 +125,9 @@ See [`deployment_report.md`](./deployment_report.md) for the complete step-by-st
 
 ## Author
 
-- **Name:** Azure Firewall Lab Student
+- **GitHub Username:** olasmi02
+- **Repository:** [https://github.com/olasmi02/azure-firewall-assignment](https://github.com/olasmi02/azure-firewall-assignment)
 - **Subscription:** Azure for Students
 - **Date:** June 2026
+- **Firewall Public IP:** 20.61.208.52
+- **Firewall Private IP:** 10.0.1.4
